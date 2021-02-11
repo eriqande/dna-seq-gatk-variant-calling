@@ -3,11 +3,11 @@ units: units.tsv
 
 ref:
   # ensembl species name
-  species: homo_sapiens
+  species: oncorhynchus_mykiss
   # ensembl release
-  release: 98
+  release: 102
   # genome build
-  build: GRCh38
+  build: Omyk_1.0
 
 filtering:
   # Set to true in order to apply machine learning based recalibration of
