@@ -33,3 +33,4 @@ scripts/.snakemake*
 !report/*.rst
 !chr24_26_28.bed
 .Rproj.user
+!dna-seq-gatk-variant-calling.Rproj
