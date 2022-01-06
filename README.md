@@ -35,6 +35,18 @@ snakemake --use-conda  --cores 8  resources/genome.fasta.{fai,bwt} resources/gen
 ```
 
 
+# Tweaking the workflow
+
+I have done a fair bit, including adding a place for NMFS_DNA_ID.
+
+Right now, I am working on just getting bams to the dedup stage,
+and running some multiqc on all that.  The dag for it looks like
+this:
+  
+  
+![DAG on a small ficitious set](images/first-phase-dag.svg)
+  
+  
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)
