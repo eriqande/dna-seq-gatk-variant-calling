@@ -46,7 +46,33 @@ this:
   
 ![DAG on a small ficitious set](images/first-phase-dag.svg)
   
-  
+
+## Testing/Developing
+
+I want to run it all the way through for one of the samples.  This one
+is only 98 Mb:  `NVS127B_Columbus_T2088_R1/T200097_T2088_5C_S35_L002_R1_001.fastq.gz`
+
+So, it is probably crappy DNA, but I can at least map it.  Looking at `units.tsv`
+I see that we have:
+```
+sample_id = T200097
+sample = s129
+```
+The final output before multiqc that we would want is of the form:
+`qc/samtools-stats/{sample}-{unit}.txt`. So, `qc/samtools-stats/s129-1.txt`.
+A quick,
+```sh
+snakemake --use-conda  -np  qc/samtools-stats/s129-1.txt
+```
+tells me that the logic of the workflow is correct.  I will now get all the
+conda packages installed:
+```sh
+snakemake --use-conda  --conda-create-envs-only --cores 8  qc/samtools-stats/s129-1.txt
+```
+
+while that is running, I will get a slurm-sedna profile together.
+
+
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)

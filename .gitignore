@@ -37,3 +37,5 @@ scripts/.snakemake*
 !prepare/
 !prepare/001-make-samples-and-units.Rmd
 !prepare/full-paths-to-fastqs.txt
+!slurm_profile
+!slurm_profile/*

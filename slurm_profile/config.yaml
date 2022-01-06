@@ -1,0 +1,10 @@
+jobscript: "slurm-jobscript.sh"
+cluster: "slurm-submit.py"
+cluster-status: "slurm-status.py"
+max-jobs-per-second: 50
+max-status-checks-per-second: 10
+local-cores: 1
+latency-wait: 60
+keep-going: True
+default-resources: [cpus=1, mem_mb=4600]
+resources: [cpus=500, mem_mb=2300000]

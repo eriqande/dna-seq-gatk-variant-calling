@@ -30,6 +30,9 @@ rule trim_reads_pe:
         "0.59.2/bio/trimmomatic/pe"
 
 
+# eca modified this.  The idea is to give 4 threads to bwa and then
+# have another cpu working on the pipes.  Sedna's machines are almost all
+# 20 core units, so this should fill them up OK.
 rule map_reads:
     input:
         reads=get_trimmed_reads,
@@ -43,7 +46,9 @@ rule map_reads:
         extra=get_read_group,
         sort="samtools",
         sort_order="coordinate",
-    threads: 8
+    resources:
+        cpus = 5
+    threads: 4
     wrapper:
         "0.59.2/bio/bwa/mem"
 
