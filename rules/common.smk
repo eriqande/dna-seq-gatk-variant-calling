@@ -59,9 +59,13 @@ def is_single_end(sample, unit):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
-    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
+    return r"-R '@RG\tID:{sample}\tSM:{sample_id}\tPL:{platform}\tLB:{library}\tPU:{flowcell}.{lane}'".format(
         sample=wildcards.sample,
+        sample_id=units.loc[(wildcards.sample, wildcards.unit), "sample_id"],
         platform=units.loc[(wildcards.sample, wildcards.unit), "platform"],
+        library=units.loc[(wildcards.sample, wildcards.unit), "library"],
+        flowcell=units.loc[(wildcards.sample, wildcards.unit), "flowcell"],
+        lane=units.loc[(wildcards.sample, wildcards.unit), "lane"],
     )
 
 

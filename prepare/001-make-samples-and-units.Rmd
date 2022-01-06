@@ -1,0 +1,59 @@
+---
+title: "Making Chinookome samples and units"
+output: html_notebook
+---
+
+To make samples.tsv and units.tsv, we need to get the file paths
+of the fastqs and process them a bit.
+
+```{r, message=FALSE}
+library(tidyverse)
+
+x <- tibble(
+  path = read_lines("full-paths-to-fastqs.txt")
+) %>%
+  mutate(base = basename(path), .before = path) %>%
+  separate(
+    base,
+    into = c(
+      "sample_id",
+      "plate",
+      "well",
+      "s_lane", # sample number in the lane
+      "lane",
+      "read",
+      "const"
+    ),
+    sep = "_"
+  ) %>%
+  select(-plate, -well, -s_lane, -const) %>%
+  mutate(
+    lane = as.integer(substr(lane, 2, 4)),
+    read = case_when(
+      read == "R1" ~ "fq1",
+      read == "R2" ~ "fq2",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  pivot_wider(
+    names_from = read,
+    values_from = path
+  ) %>%
+  mutate(
+    sample = sprintf("s%03d", 1:n()),
+    .before = sample_id
+  ) %>%
+  mutate(
+    unit = 1,
+    platform = "ILLUMINA",
+    library = str_c("Lib-", lane),
+    flowcell = "HY75HDSX2", # just got this from the fastq
+    .after = sample_id
+  )
+
+write_tsv(x, file = "../units.tsv")
+
+x %>%
+  select(sample) %>%
+  write_tsv("../samples.tsv")
+```

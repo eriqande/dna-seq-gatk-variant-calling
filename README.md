@@ -1,3 +1,40 @@
+# yukon-chinookomes branch
+
+This is a snakemake workflow.  This branch of it has been
+configured to run through the Yukon Chinookomes.
+
+Some modifications are as follows.
+
+## Getting the Genome
+
+Otsh_V2.0 is not up on Ensembl yet, so I can't have it downloaded directly
+using the Snakemake workflow.  Instead I am going to just download it directly,
+gunzip it and then put it into resources/genome.fasta.
+
+I will download it from: 
+
+https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/018/296/145/GCA_018296145.1_Otsh_v2.0/GCA_018296145.1_Otsh_v2.0_genomic.fna.gz
+
+So, I got it with:
+```{r}
+(snakemake) [node34: resources]--% pwd
+/home/eanderson/Documents/projects/yukon-chinookomes/resources
+(snakemake) [node34: resources]--% wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/018/296/145/GCA_018296145.1_Otsh_v2.0/GCA_018296145.1_Otsh_v2.0_genomic.fna.gz
+
+# that was ridiculously fast.
+
+
+```
+Then I gunzipped it and renamed it `resources/genome.fasta`
+
+## Indexing the genome.
+
+While waiting to get more quota, etc., I will index the genome.
+```sh
+snakemake --use-conda  --cores 8  resources/genome.fasta.{fai,bwt} resources/genome.dict
+```
+
+
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)

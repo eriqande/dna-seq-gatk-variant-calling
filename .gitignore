@@ -34,3 +34,6 @@ scripts/.snakemake*
 !chr24_26_28.bed
 .Rproj.user
 !dna-seq-gatk-variant-calling.Rproj
+!prepare/
+!prepare/001-make-samples-and-units.Rmd
+!prepare/full-paths-to-fastqs.txt
