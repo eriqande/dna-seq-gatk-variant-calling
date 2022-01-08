@@ -8,6 +8,7 @@ of the fastqs and process them a bit.
 
 ```{r, message=FALSE}
 library(tidyverse)
+library(readxl)
 
 x <- tibble(
   path = read_lines("full-paths-to-fastqs.txt")
@@ -50,6 +51,29 @@ x <- tibble(
     flowcell = "HY75HDSX2", # just got this from the fastq
     .after = sample_id
   )
+
+## Now, we want to add the barcodes to these guys too.
+## Here I use IlluminaIndex+DualIndex
+ex <- read_excel(
+  path = "NGS WorkOrder_garza_DEC2021.xlsx",
+  sheet = "Library Indexing",
+  skip = 6
+)
+
+# it is sort of a hassle getting this done, they way they store their
+# data in those god-awful spread sheets.  But we want set of three
+# consecutive colums that start on 1, 6, 11, and 16
+sets <- lapply(c(1, 6, 11, 16), function(x) x + 0:2)
+listo <- lapply(sets, function(x) {
+  y <- ex[, x]
+  names(y) <- c("sample_name", "illumina_index", "dual_index")
+  y
+}) %>%
+  bind_rows(.id = "lane")
+
+## In the end, I am not going to hassle with this, since I don't
+## know how GATK uses the barcodes.
+
 
 write_tsv(x, file = "../units.tsv")
 

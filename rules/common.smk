@@ -83,7 +83,7 @@ def get_trimmed_reads(wildcards):
 def get_sample_bams(wildcards):
     """Get all aligned reads of given sample."""
     return expand(
-        "dedup/{sample}-{unit}.bam",
+        "mkdup/{sample}-{unit}.bam",
         sample=wildcards.sample,
         unit=units.loc[wildcards.sample].unit,
     )
@@ -113,7 +113,7 @@ def get_recal_input(bai=False):
     f = "mapped/{sample}-{unit}.sorted.bam"
     if config["processing"]["remove-duplicates"]:
         # case 2: remove duplicates
-        f = "dedup/{sample}-{unit}.bam"
+        f = "mkdup/{sample}-{unit}.bam"
     if bai:
         if config["processing"].get("restrict-regions"):
             # case 3: need an index because random access is required

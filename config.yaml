@@ -7,7 +7,7 @@ ref:
   # ensembl species name
   species: oncorhynchus_tshawytscha
   # ensembl release
-  release: 102
+  release: "undef"
   # genome build
   build: Otsh_v2.0
 
@@ -39,7 +39,7 @@ params:
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
   picard:
-    MarkDuplicates: "REMOVE_DUPLICATES=true"
+    MarkDuplicates: "REMOVE_DUPLICATES=false"
   trimmomatic:
     pe:
       trimmer:
