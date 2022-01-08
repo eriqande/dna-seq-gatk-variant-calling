@@ -7,7 +7,7 @@ ref:
   # ensembl species name
   species: oncorhynchus_tshawytscha
   # ensembl release
-  release: "undef"
+  release: 0
   # genome build
   build: Otsh_v2.0
 
