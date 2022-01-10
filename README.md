@@ -202,6 +202,21 @@ in there.
 5. I thought for a while that I might add barcode sequences to the PU, for completeness, but, since I don't know how gatk really uses them, and it is
 unlikely they would be used correctly for non-model organisms, I ditched that.
 
+## First run
+
+```sh
+# did this:
+snakemake --use-conda  --profile ./slurm_profile  --jobs 500  results/qc/multiqc.html
+
+# it mapped 374 of 384.  I think I had 9 trimmomatic failures and
+# 1 mkdup failure
+
+# full log is in here:
+/home/eanderson/Documents/projects/yukon-chinookomes-dna-seq-gatk-variant-calling/.snakemake/log/2022-01-08T204846.726634.snakemake.log
+```
+Gonna restart and see if it was just transient read errors...
+
+
 
 # Snakemake workflow: dna-seq-gatk-variant-calling
 

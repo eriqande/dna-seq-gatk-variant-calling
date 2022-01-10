@@ -23,14 +23,9 @@ rule samtools_stats:
 
 rule multiqc:
     input:
-        expand(
-            [
-                "results/qc/samtools-stats/{u.sample}-{u.unit}.txt",
-                "results/qc/fastqc/{u.sample}-{u.unit}.zip",
-                "results/qc/mkdup/{u.sample}-{u.unit}.metrics.txt",
-            ],
-            u=units.itertuples(),
-        ),
+        expand("results/qc/samtools-stats/{u.sample}-{u.unit}.txt", u=units.itertuples()),
+        expand("results/qc/fastqc/{u.sample}-{u.unit}.zip", u=units.itertuples()),
+        expand("results/qc/mkdup/{u.sample}-{u.unit}.metrics.txt", u=units.itertuples())
     output:
         report(
             "results/qc/multiqc.html",
