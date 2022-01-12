@@ -21,11 +21,12 @@ rule samtools_stats:
         "0.59.2/bio/samtools/stats"
 
 
-rule multiqc:
+rule multiqc_and_index_bams:
     input:
         expand("results/qc/samtools-stats/{u.sample}-{u.unit}.txt", u=units.itertuples()),
         expand("results/qc/fastqc/{u.sample}-{u.unit}_fastqc.zip", u=units.itertuples()),
-        expand("results/qc/mkdup/{u.sample}-{u.unit}.metrics.txt", u=units.itertuples())
+        expand("results/qc/mkdup/{u.sample}-{u.unit}.metrics.txt", u=units.itertuples()),
+        expand("results/mkdup/{u.sample}-{u.unit}.bam.bai", u=units.itertuples())
     output:
         report(
             "results/qc/multiqc.html",
