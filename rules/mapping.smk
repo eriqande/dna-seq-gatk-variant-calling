@@ -64,8 +64,8 @@ rule mark_duplicates:
     log:
         "results/logs/picard/mkdup/{sample}-{unit}.log",
     params:
-        java_opts = "-Xmx8G ",
         config["params"]["picard"]["MarkDuplicates"],
+        java_opts = "-Xmx8G ",
     resources:
         cpus = 4,
         mem_mb = 18400
