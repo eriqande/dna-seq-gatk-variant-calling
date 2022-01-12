@@ -235,6 +235,120 @@ I copied the output from that and put it into `prepare/failed-steps.txt`.
 Then, I analyze it with: `prepare/002-mapping-failures.Rmd`.
 
 
+### Playing with HaplotypeCaller
+
+I really need to know, roughly, how long it will take to make the individual
+gVCFs.
+
+So, I will do a test run with an average size bam file. Let'd do
+`results/mkdup/s001-1.bam` which is 5.5 Gb.  Let's try:
+```sh
+# going to use the gatk that comes with sedna
+module load bio/gatk
+conda activate /opt/bioinformatics/miniconda3/envs/gatk
+
+gatk --java-options "-Xmx8g" HaplotypeCaller  \
+   -R resources/genome.fasta \
+   -I results/mkdup/s001-1.bam \
+   -O results/gvcf/s001.g.vcf.gz \
+   -ERC GVCF
+```
+Note that we will have to index all these bams before doing this for real.
+
+I started that at 20:18:36 and it seems to be doing about 3 Mb per minute which would suggest about 32 hours for the whole schmeer.
+
+### How much slower is it if we use just one core?
+
+Let's try this out.  I will put this on just one core
+```sh
+module load bio/gatk
+conda activate /opt/bioinformatics/miniconda3/envs/gatk
+
+gatk --java-options "-Xmx4g" HaplotypeCaller  \
+   -R resources/genome.fasta \
+   -I results/mkdup/s001-1.bam \
+   -O results/gvcf/s001.g.vcf.gz \
+   -ERC GVCF > gatk-1core4thread.stdout 2> gatk-1core4thread.stderr
+```
+
+### How about if we set threads to one at the same time?
+
+```sh
+module load bio/gatk
+conda activate /opt/bioinformatics/miniconda3/envs/gatk
+
+FF=s001
+gatk --java-options "-Xmx4g" HaplotypeCaller  \
+   -R resources/genome.fasta \
+   -I results/mkdup/${FF}-1.bam \
+   -O results/gvcf/${FF}.g.vcf.gz \
+   -ERC GVCF > gatk-1core1thread.stdout 2> gatk-1core1thread.stderr
+```
+
+So, preliminary results are suggesting to me that using 4 cores with 4 threads
+is only 1.26X faster than using 1 core with 4 threads (which is, itself,
+slightly faster that 1 core with 1 thread.)  So, that is settled.  When I do
+this for real, it will be 1 core per sample, and we can expect it to be about 36
+to 40 hours for each sample.  But, if no one is on SEDNA, we can do them all at
+once.
+
+So, I killed those and I will now start three runs so I have gvcfs to play
+with for importing genomic data bases, etc.
+```sh
+mkdir results/logs/gvcf-play
+
+module load bio/gatk
+conda activate /opt/bioinformatics/miniconda3/envs/gatk
+
+FF=s003
+gatk --java-options "-Xmx4g" HaplotypeCaller  \
+   -R resources/genome.fasta \
+   -I results/mkdup/${FF}-1.bam \
+   -O results/gvcf/${FF}.g.vcf.gz \
+   -ERC GVCF > results/logs/gvcf-play/$FF.stdout 2> results/logs/gvcf-play/$FF.stderr
+
+```
+
+Aw crap! It looks like I didn't really set threads to 1.  Oh well.  I will just do it for the
+FF=s003 job:
+```sh
+gatk --java-options "-Xmx4g" HaplotypeCaller     -R resources/genome.fasta    -I results/mkdup/${FF}-1.bam    -O results/gvcf/${FF}.g.vcf.gz --native-pair-hmm-threads 1   -ERC GVCF > results/logs/gvcf-play/$FF.stdout 2> results/logs/gvcf-play/$FF.stderr
+```
+
+#### Looking at the results of all that
+
+Note that by the time the program has reached CM031232.1, it has processed
+1992217379 bases.
+
+So, let's see where the first time they hit that was:
+```sh
+(gatk) [node21: yukon-chinookomes-dna-seq-gatk-variant-calling]--% for i in results/logs/gvcf-play/*.stderr; do echo =====$i======; awk '/ProgressMeter/ && /CM031232.1/ {print; exit}' $i; done
+=====results/logs/gvcf-play/s001.stderr======
+08:07:30.817 INFO  ProgressMeter -    CM031232.1:635749            665.4              12690740          19071.8
+=====results/logs/gvcf-play/s002.stderr======
+09:35:00.226 INFO  ProgressMeter -    CM031232.1:932671            741.3              12418360          16751.9
+=====results/logs/gvcf-play/s003.stderr======
+05:51:39.382 INFO  ProgressMeter -    CM031232.1:820622            510.8              12131850          23748.4
+```
+OK, and how big were each of the bams?
+```sh
+(gatk) [node21: yukon-chinookomes-dna-seq-gatk-variant-calling]--% du -h results/mkdup/s00[1-3]-1.bam
+5.6G	results/mkdup/s001-1.bam
+6.6G	results/mkdup/s002-1.bam
+4.0G	results/mkdup/s003-1.bam
+```
+So, let's scale all those together and compare:
+```r
+> c(665, 741, 510) / 510
+[1] 1.303922 1.452941 1.000000
+
+> c(5.6, 6.6, 4.0) / 4.0 
+[1] 1.40 1.65 1.00
+```
+So, there might be a small advantage to setting the threads to 1.
+Or maybe not.  Either way, these all ripped through all but one of the autosomes
+in under 12.5 hours, with a single core.  So this is great news!
+
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)
