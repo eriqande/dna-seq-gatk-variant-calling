@@ -215,7 +215,24 @@ snakemake --use-conda  --profile ./slurm_profile  --jobs 500  results/qc/multiqc
 /home/eanderson/Documents/projects/yukon-chinookomes-dna-seq-gatk-variant-calling/.snakemake/log/2022-01-08T204846.726634.snakemake.log
 ```
 Gonna restart and see if it was just transient read errors...
+```sh
+(snakemake) [node34: yukon-chinookomes-dna-seq-gatk-variant-calling]--% snakemake --use-conda  --profile ./slurm_profile  --jobs 200   results/qc/multiqc.html
 
+Complete log: /home/eanderson/Documents/projects/yukon-chinookomes-dna-seq-gatk-variant-calling/.snakemake/log/2022-01-10T052721.802307.snakemake.log
+```
+So, those are bona fide failures!
+
+Let's tally them up:
+```sh
+# get the output from snakemake
+snakemake --use-conda  --profile ./slurm_profile  -np   results/qc/multiqc.html > /tmp/sm.txt
+
+# then process it to summarize
+awk '/^rule/ {rule = $2; next} /output:/ {out = $2; print rule, out}' /tmp/sm.txt | sort
+
+```
+I copied the output from that and put it into `prepare/failed-steps.txt`.
+Then, I analyze it with: `prepare/002-mapping-failures.Rmd`.
 
 
 # Snakemake workflow: dna-seq-gatk-variant-calling
