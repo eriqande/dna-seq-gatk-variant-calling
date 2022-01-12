@@ -39,7 +39,7 @@ rule call_variants:
 rule eca_call_variants:
     input:
         bam="results/mkdup/{sample}-{unit}.bam",
-        bai="results/mkdup/{sample}-{unit}.bai",
+        bai="results/mkdup/{sample}-{unit}.bam.bai",
         ref="resources/genome.fasta",
         idx="resources/genome.dict",
     output:
