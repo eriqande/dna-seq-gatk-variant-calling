@@ -48,9 +48,9 @@ rule map_reads:
         sort="samtools",
         sort_order="coordinate",
     resources:
-        cpus = 4,
-        mem_mb = 18400  
-    threads: 4
+        cpus = 8,
+        mem_mb = 36800  
+    threads: 8
     wrapper:
         "0.59.2/bio/bwa/mem"
 
@@ -64,7 +64,11 @@ rule mark_duplicates:
     log:
         "results/logs/picard/mkdup/{sample}-{unit}.log",
     params:
+        java_opts = "-Xmx8G ",
         config["params"]["picard"]["MarkDuplicates"],
+    resources:
+        cpus = 4,
+        mem_mb = 18400
     wrapper:
         "0.59.2/bio/picard/markduplicates"
 
