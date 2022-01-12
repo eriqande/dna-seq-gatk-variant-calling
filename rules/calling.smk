@@ -36,7 +36,7 @@ rule call_variants:
 
 # this is the straight-up simple version that I use to just create
 # a GVCF from the bam in mkdup, over all the regions.
-rule erics_call_variants:
+rule eca_call_variants:
     input:
         bam="results/mkdup/{sample}-{unit}.bam",
         bai="results/mkdup/{sample}-{unit}.bai",
@@ -51,12 +51,17 @@ rule erics_call_variants:
         stderr="results/logs/gatk/haplotypecaller/{sample}-{unit}.stderr",
         stdout="results/logs/gatk/haplotypecaller/{sample}-{unit}.stdout",
     params:
-        java_opts: "-Xmx4g"
+        java_opts="-Xmx4g"
+    resources:
+        mem_mb = 4600,
+        cpus = 1
+    threads: 1
     shell:
         "gatk --java-options \"{params.java_opts}\" HaplotypeCaller "
         " -R {input.ref} "
         " -I {input.bam} "
         " -O {output.gvcf} "
+        " --native-pair-hmm-threads {threads} "
         " -ERC GVCF > {log.stdout} 2> {log.stderr} "
 
 
