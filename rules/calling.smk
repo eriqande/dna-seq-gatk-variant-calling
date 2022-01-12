@@ -35,7 +35,9 @@ rule call_variants:
 
 
 # this is the straight-up simple version that I use to just create
-# a GVCF from the bam in mkdup, over all the regions.
+# a GVCF from the bam in mkdup, over all the regions.  Note that I give it
+# 72 hours by default because I want it to be long enough for all possible
+# bam files.
 rule eca_call_variants:
     input:
         bam="results/mkdup/{sample}-{unit}.bam",
@@ -53,6 +55,7 @@ rule eca_call_variants:
     params:
         java_opts="-Xmx4g"
     resources:
+        time="3-00:00:00",
         mem_mb = 4600,
         cpus = 1
     threads: 1
