@@ -33,6 +33,33 @@ rule call_variants:
         "0.59.0/bio/gatk/haplotypecaller"
 
 
+
+# this is the straight-up simple version that I use to just create
+# a GVCF from the bam in mkdup, over all the regions.
+rule erics_call_variants:
+    input:
+        bam="results/mkdup/{sample}-{unit}.bam",
+        bai="results/mkdup/{sample}-{unit}.bai",
+        ref="resources/genome.fasta",
+        idx="resources/genome.dict",
+    output:
+        gvcf=protected("results/gvcf/{sample}-{unit}.g.vcf.gz"),
+        idx=protected("results/gvcf/{sample}-{unit}.g.vcf.gz.tbi"),
+    conda:
+        "../envs/gatk4.yaml"
+    log:
+        stderr="results/logs/gatk/haplotypecaller/{sample}-{unit}.stderr",
+        stdout="results/logs/gatk/haplotypecaller/{sample}-{unit}.stdout",
+    params:
+        java_opts: "-Xmx4g"
+    shell:
+        "gatk --java-options \"{params.java_opts}\" HaplotypeCaller "
+        " -R {input.ref} "
+        " -I {input.bam} "
+        " -O {output.gvcf} "
+        " -ERC GVCF > {log.stdout} 2> {log.stderr} "
+
+
 rule combine_calls:
     input:
         ref="resources/genome.fasta",
