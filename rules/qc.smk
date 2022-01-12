@@ -3,7 +3,7 @@ rule fastqc:
         unpack(get_fastq),
     output:
         html="results/qc/fastqc/{sample}-{unit}.html",
-        zip="results/qc/fastqc/{sample}-{unit}.zip",
+        zip="results/qc/fastqc/{sample}-{unit}_fastqc.zip",
     log:
         "results/logs/fastqc/{sample}-{unit}.log",
     wrapper:
