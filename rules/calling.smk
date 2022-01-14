@@ -55,10 +55,10 @@ rule genomics_db_import_chromosomes:
     conda:
         "../envs/gatk4.yaml"
     shell:
-        " gatk --java-options {params.java_opts} GenomicsDBImport {extra} "
+        " gatk --java-options {params.java_opts} GenomicsDBImport {params.extra} "
         " {params.fileflags} "
         " --intervals {params.intervals} "
-        " {db_action} {output.db} > {log} 2> {log}"
+        " {params.db_action} {output.db} > {log} 2> {log}"
 
 
 
