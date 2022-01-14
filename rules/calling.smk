@@ -1,39 +1,3 @@
-if "restrict-regions" in config["processing"]:
-
-    rule compose_regions:
-        input:
-            config["processing"]["restrict-regions"],
-        output:
-            "called/{contig}.regions.bed",
-        conda:
-            "../envs/bedops.yaml"
-        shell:
-            "bedextract {wildcards.contig} {input} > {output}"
-
-
-rule call_variants:
-    input:
-        bam=get_sample_bams,
-        ref="resources/genome.fasta",
-        idx="resources/genome.dict",
-        #known="resources/variation.noiupac.vcf.gz",
-        #tbi="resources/variation.noiupac.vcf.gz.tbi",
-        regions=(
-            "called/{contig}.regions.bed"
-            if config["processing"].get("restrict-regions")
-            else []
-        ),
-    output:
-        gvcf=protected("called/{sample}.{contig}.g.vcf.gz"),
-    log:
-        "logs/gatk/haplotypecaller/{sample}.{contig}.log",
-    params:
-        extra=get_call_variants_params,
-    wrapper:
-        "0.59.0/bio/gatk/haplotypecaller"
-
-
-
 # this is the straight-up simple version that I use to just create
 # a GVCF from the bam in mkdup, over all the regions.  Note that I give it
 # 72 hours by default because I want it to be long enough for all possible
@@ -66,6 +30,65 @@ rule eca_call_variants:
         " -O {output.gvcf} "
         " --native-pair-hmm-threads {threads} "
         " -ERC GVCF > {log.stdout} 2> {log.stderr} "
+
+
+
+
+
+
+
+rule call_variants:
+    input:
+        bam=get_sample_bams,
+        ref="resources/genome.fasta",
+        idx="resources/genome.dict",
+        #known="resources/variation.noiupac.vcf.gz",
+        #tbi="resources/variation.noiupac.vcf.gz.tbi",
+        regions=(
+            "called/{contig}.regions.bed"
+            if config["processing"].get("restrict-regions")
+            else []
+        ),
+    output:
+        gvcf=protected("called/{sample}.{contig}.g.vcf.gz"),
+    log:
+        "logs/gatk/haplotypecaller/{sample}.{contig}.log",
+    params:
+        extra=get_call_variants_params,
+    wrapper:
+        "0.59.0/bio/gatk/haplotypecaller"
+
+
+
+
+# Ultimately, this will grab all the gVCFs and import them into
+# a bunch of databases (one for each chromomsome or collection of
+# scaffolds). For now I am just running a little test.
+rule import_genomics_db:
+    input:
+        gvcfs=
+    shell:
+        " export TILEDB_DISABLE_FILE_LOCKING=1; "
+        " gatk GenomicsDBImport -V results/gvcf-play/s001.g.vcf.gz -V results/gvcf-play/s002.g.vcf.gz -V results/gvcf-play/s003.g.vcf.gz --genomicsdb-workspace-path sandbox --intervals CM031199.1""
+
+
+rule genomics_db_import:
+    input:
+        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+    output:
+        db=directory("results/genomics_db/chromosomes/{chromo}"),
+    log:
+        "results/logs/gatk/genomicsdbimport.log"
+    params:
+        intervals="{chromo}",
+        db_action="create", # optional
+        extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
+        java_opts="-Xmx4g",  # optional
+    resources:
+        mem_mb=9400,
+        cpus = 2
+    wrapper:
+        "v0.85.1/bio/gatk/genomicsdbimport"
 
 
 rule combine_calls:

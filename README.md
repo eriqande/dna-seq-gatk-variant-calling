@@ -349,6 +349,72 @@ So, there might be a small advantage to setting the threads to 1.
 Or maybe not.  Either way, these all ripped through all but one of the autosomes
 in under 12.5 hours, with a single core.  So this is great news!
 
+
+## GenomicsDBImport
+
+Playing around with this.  There is no problem getting it to run on my three example
+gVCFs above. Using a single core and no modifications to the memory for the Java machine:
+```sh
+# this is recommended for NFS filesystems
+export TILEDB_DISABLE_FILE_LOCKING=1
+
+# Doing just the first chromosome
+gatk GenomicsDBImport -V results/gvcf-play/s001.g.vcf.gz -V results/gvcf-play/s002.g.vcf.gz -V results/gvcf-play/s003.g.vcf.gz --genomicsdb-workspace-path sandbox --intervals CM031199.1
+```
+It took about 8 minutes to run though that.  I don't know how it scales with number of samples,
+but let's imagine that it is linear.  If so, then let's estimate 3 minutes per sample on this
+average sized (maybe somewhat large-ish) chromosome.  That would be roughly 19 hours for all
+384 samples.  OK.  
+
+It doesn't seem that multithreading will improve this, but I should test it.  NIH HPC did some
+benchmarking and adding more cores does not seem to help (nor does adding more memory).  For production, I think that running
+it on two cores with "-Xmx4g" to the java engine and the other 5.4 Gb to the C++ parts of
+GenomicsDBImport should be fine.  
+
+With lots of samples, the program opens and maintains connections to many files (like one per
+sample).  In extreme cases, this can start to slow things down and even crash your process.  So,
+the recommend reading things in in batches of 50.  Apparently this can be slower than doing everyone
+at once, but should be more fault tolerant.  A good discussion of these issues can
+be found at: [https://gatk.broadinstitute.org/hc/en-us/articles/360056138571-GenomicsDBImport-usage-and-performance-guidelines](https://gatk.broadinstitute.org/hc/en-us/articles/360056138571-GenomicsDBImport-usage-and-performance-guidelines).  This is set with the `--batch-size` option.
+
+That page mentions that multiple reader threads might be useful when opening files
+in batches and dealing with filesystem latency.  So, `--reader-threads` might be a good
+thing to use.  Also, they recommend setting
+`--genomicsdb-shared-posixfs-optimizations` to `true` in this case.
+
+Scattering it over chromosomes is definitely what we will want to do.  We would have one class of
+jobs, each of which just operated on a single chromosome over all samples.
+But then, we have to do something with the 8,000 or so small contigs.  In the Otsh_v2.0 genome
+they are organized in the genome from shortest to longest, it appears.  GenomicsDBImport now
+provides the `--merge-contigs-into-num-partitions` option, which is just what we want!
+
+I think it would be worthwhile to carve those contigs into sets that are each of about the
+same cumulative size---say, maybe about 50% of the average length of a chromosome---and then
+we could do a separate job for each of those, merging all those contigs into a single partition.
+
+To set this up, it would be easy to read the fai file and have the user provide a prefix for the
+chromosomes (like CM).  Then we have a rule that uses R to set that all up, just writing the intervals
+to text files that can be inserted onto the command line.  Killer!
+
+
+I am continuing with this and now have a rule `genomics_db_import`.  I set it up to do s001--s004, for
+whatever chromosome I name.  
+## GenotypeGVCFs
+
+I want to play around with this utility a bit, as well.
+
+```sh
+mkdir -p  /scratch/eanderson/tmp
+
+gatk --java-options "-Xmx4g" GenotypeGVCFs \
+   -R resources/genome.fasta \
+   -V gendb://sandbox \
+   -O CM031199.1.vcf.gz \
+   --tmp-dir  /scratch/eanderson/tmp
+
+```
+
+
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)
