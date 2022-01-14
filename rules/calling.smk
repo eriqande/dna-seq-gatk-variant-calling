@@ -33,6 +33,32 @@ rule eca_call_variants:
 
 
 
+# apparently setting Xmx4G affects the resource allocation here, but
+# I want to be sure to get more RAM than that.  On slurm, it will get that
+# if we request 2 CPUs on sedna.  Note that this thing runs no faster with
+# four cpus and reader threads than with 2.
+rule genomics_db_import_chromosomes:
+    input:
+        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+    output:
+        db=directory("results/genomics_db/chromosomes/{chromo}"),
+    log:
+        "results/logs/gatk/genomicsdbimport/chromosomes/{chromo}.log"
+    params:
+        fileflags=gvcfs=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        intervals="{chromo}",
+        db_action="--genomicsdb-workspace-path", # could change to the update flag
+        extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
+        java_opts="-Xmx4g",  # optional
+    resources:
+        cpus = 2
+    conda:
+        "../envs/gatk4.yaml"
+    shell:
+        " gatk --java-options {java_opts} GenomicsDBImport {extra} "
+        " {params.fileflags} "
+        " --intervals {params.intervals} "
+        " {db_action} {output.db} > {log} 2> {log}"
 
 
 
@@ -60,26 +86,10 @@ rule call_variants:
 
 
 
-# apparently setting Xmx4G affects the resource allocation here, but
-# I want to be sure to get more RAM than that.  On slurm, it will get that
-# if we request 2 CPUs on sedna.  Note that this thing runs no faster with
-# four cpus and reader threads than with 2.
-rule genomics_db_import_chromosomes:
-    input:
-        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
-    output:
-        db=directory("results/genomics_db/chromosomes/{chromo}"),
-    log:
-        "results/logs/gatk/genomicsdbimport/chromosomes/{chromo}.log"
-    params:
-        intervals="{chromo}",
-        db_action="create", # optional
-        extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
-        java_opts="-Xmx4g",  # optional
-    resources:
-        cpus = 2
-    wrapper:
-        "v0.85.1/bio/gatk/genomicsdbimport"
+
+
+#    wrapper:
+#        "v0.85.1/bio/gatk/genomicsdbimport"
 
 
 
