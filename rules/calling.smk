@@ -62,8 +62,9 @@ rule call_variants:
 
 # apparently setting Xmx4G affects the resource allocation here, but
 # I want to be sure to get more RAM than that.  On slurm, it will get that
-# if we request 2 CPUs on sedna.
-rule genomics_db_import:
+# if we request 2 CPUs on sedna.  Note that this thing runs no faster with
+# four cpus and reader threads than with 2.
+rule genomics_db_import_chromosomes:
     input:
         gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
     output:
@@ -73,12 +74,15 @@ rule genomics_db_import:
     params:
         intervals="{chromo}",
         db_action="create", # optional
-        extra=" --batch-size 50 --reader-threads 4 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
-        java_opts="-Xmx8g",  # optional
+        extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
+        java_opts="-Xmx4g",  # optional
     resources:
-        cpus = 4
+        cpus = 2
     wrapper:
         "v0.85.1/bio/gatk/genomicsdbimport"
+
+
+
 
 
 rule combine_calls:
