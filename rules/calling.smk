@@ -45,7 +45,7 @@ rule genomics_db_import_chromosomes:
     log:
         "results/logs/gatk/genomicsdbimport/chromosomes/{chromo}.log"
     params:
-        fileflags=gvcfs=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        fileflags=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
         intervals="{chromo}",
         db_action="--genomicsdb-workspace-path", # could change to the update flag
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
