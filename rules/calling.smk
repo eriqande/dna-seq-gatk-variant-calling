@@ -73,7 +73,6 @@ rule genomics_db_import:
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
     resources:
-        mem_mb=9400,
         cpus = 2
     wrapper:
         "v0.85.1/bio/gatk/genomicsdbimport"
