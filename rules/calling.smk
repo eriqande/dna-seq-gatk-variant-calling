@@ -60,18 +60,6 @@ rule call_variants:
 
 
 
-
-# Ultimately, this will grab all the gVCFs and import them into
-# a bunch of databases (one for each chromomsome or collection of
-# scaffolds). For now I am just running a little test.
-rule import_genomics_db:
-    input:
-        gvcfs=
-    shell:
-        " export TILEDB_DISABLE_FILE_LOCKING=1; "
-        " gatk GenomicsDBImport -V results/gvcf-play/s001.g.vcf.gz -V results/gvcf-play/s002.g.vcf.gz -V results/gvcf-play/s003.g.vcf.gz --genomicsdb-workspace-path sandbox --intervals CM031199.1""
-
-
 rule genomics_db_import:
     input:
         gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
