@@ -66,7 +66,7 @@ rule genomics_db_import:
     output:
         db=directory("results/genomics_db/chromosomes/{chromo}"),
     log:
-        "results/logs/gatk/genomicsdbimport.log"
+        "results/logs/gatk/genomicsdbimport/chromosomes/{chromo}.log"
     params:
         intervals="{chromo}",
         db_action="create", # optional
