@@ -62,6 +62,31 @@ rule genomics_db_import_chromosomes:
 
 
 
+rule genomics_db_import_scaffold_groups:
+    input:
+        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+    output:
+        db=directory("results/genomics_db/scaffold_groups/{scaff_group}"),
+    log:
+        "results/logs/gatk/genomicsdbimport/scaffold_groups/{scaff_group}.log"
+    params:
+        fileflags=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        intervals=get_scaff_group,
+        db_action="--genomicsdb-workspace-path", # could change to the update flag
+        extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --merge-contigs-into-num-partitions 1 --tmp-dir /scratch/eanderson/tmp ",  # optional
+        java_opts="-Xmx4g",  # optional
+    resources:
+        cpus = 2
+    conda:
+        "../envs/gatk4.yaml"
+    shell:
+        " gatk --java-options {params.java_opts} GenomicsDBImport {params.extra} "
+        " {params.fileflags} "
+        " --intervals {params.intervals} "
+        " {params.db_action} {output.db} > {log} 2> {log}"
+
+
+
 
 rule call_variants:
     input:

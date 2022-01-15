@@ -47,6 +47,10 @@ wildcard_constraints:
 ##### Helper functions #####
 
 # contigs in reference genome
+# eric added this
+def get_scaff_group():
+    return scaffold_groups.loc[wildcards.scaff_group, "scaffolds"].dropna()
+
 def get_contigs():
     with checkpoints.genome_faidx.get().output[0].open() as fai:
         return pd.read_table(fai, header=None, usecols=[0], squeeze=True, dtype=str)
