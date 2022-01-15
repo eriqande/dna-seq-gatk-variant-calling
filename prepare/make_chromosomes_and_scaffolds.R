@@ -46,9 +46,11 @@ bin_length <- as.integer(mean_cl * 0.40)
 scaffs %>%
   mutate(
     cumul = cumsum(len),
-    part = as.integer(cumul / bin_length) + 1L,
-    id = sprintf("scaff_group%03d", part)
+    part = as.integer(cumul / bin_length) + 1L
   ) %>%
-  group_by(id) %>%
-  summarise(scaffolds = paste(chrom, sep = ",", collapse = ",")) %>%
+  mutate(
+    id = sprintf("scaff_group%03d", part),
+    .before = chrom
+  ) %>%
+  select(-part) %>%
   write_tsv("scaffold_groups.tsv")

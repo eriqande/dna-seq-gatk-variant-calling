@@ -5,10 +5,17 @@ properties:
   id:
     type: string
     description: scaffold_group identifier
-  scaffolds:
+  chrom:
     type: string
-    description: comma-separated list of scaffolds
+    description: name of scaffold
+  len:
+    type: string
+    description: length of scaffold
+  cumul:
+    type: string
+    description: cumulative length of all scaffolds up to and including the present
 
 required:
   - id
-  - scaffolds
+  - chrom
+
