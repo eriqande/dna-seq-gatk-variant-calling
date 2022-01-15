@@ -1,0 +1,14 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the chromosomes sheet
+properties:
+  id:
+    type: string
+    description: scaffold_group identifier
+  scaffolds:
+    type: string
+    description: comma-separated list of scaffolds
+
+required:
+  - id
+  - scaffolds

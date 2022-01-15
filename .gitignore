@@ -40,3 +40,6 @@ scripts/.snakemake*
 !prepare/*
 !slurm_profile
 !slurm_profile/*
+resources
+!chromosomes.tsv
+!scaffold_groups.tsv

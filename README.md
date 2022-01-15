@@ -399,6 +399,9 @@ to text files that can be inserted onto the command line.  Killer!
 
 I am continuing with this and now have a rule `genomics_db_import`.  I set it up to do s001--s004, for
 whatever chromosome I name.  
+
+
+
 ## GenotypeGVCFs
 
 I want to play around with this utility a bit, as well.

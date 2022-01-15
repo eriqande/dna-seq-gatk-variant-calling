@@ -6,6 +6,10 @@ include: "rules/common.smk"
 
 rule all:
     input:
+        expand("results/genomics_db/chromosomes/{c}", c=chromosomes.chrom)
+
+rule old_all:
+    input:
         "annotated/all.vcf.gz",
         "qc/multiqc.html",
         "plots/depths.svg",

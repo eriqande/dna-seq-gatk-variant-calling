@@ -29,6 +29,14 @@ units.index = units.index.set_levels(
 validate(units, schema="../schemas/units.schema.yaml")
 
 
+### Eric's addition to genotype over the chromosomes and scaffold_groups
+chromosomes = pd.read_table("chromosomes.tsv").set_index("id", drop=False)
+validate(chromosomes, schema="../schemas/chromosomes.schema.yaml")
+
+scaffold_groups = pd.read_table("scaffold_groups.tsv").set_index("id", drop=False)
+validate(scaffold_groups, schema="../schemas/scaffold_groups.schema.yaml")
+
+
 ##### Wildcard constraints #####
 wildcard_constraints:
     vartype="snvs|indels",
