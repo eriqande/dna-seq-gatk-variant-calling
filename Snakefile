@@ -6,8 +6,10 @@ include: "rules/common.smk"
 
 rule all:
     input:
-        expand("results/genomics_db/chromosomes/{c}", c=chromosomes.chrom),
-        expand("results/genomics_db/scaffold_groups/{s}", s=unique_scaff_groups)
+        #expand("results/genomics_db/chromosomes/{c}", c=chromosomes.chrom),
+        #expand("results/genomics_db/scaffold_groups/{s}", s=unique_scaff_groups)
+        expand("results/vcf_sections/chromosomes/{c}.vcf.gz", c=chromosomes.chrom),
+        expand("results/vcf_sections/scaffold_groups/{s}.vcf.gz", s=unique_scaff_groups)
 
 rule old_all:
     input:

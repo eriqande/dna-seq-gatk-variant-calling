@@ -37,9 +37,14 @@ rule eca_call_variants:
 # I want to be sure to get more RAM than that.  On slurm, it will get that
 # if we request 2 CPUs on sedna.  Note that this thing runs no faster with
 # four cpus and reader threads than with 2.
+### NOTE: WHEN WE HAVE SAMPLE SEQUENCED IN MULTIPLE UNITS WE WILL HAVE TO COMPLETELY
+### OVERHAUL THIS TO MERGE THE BAMS before Marking Duplicates, then deal just with
+### the sample identifer, no longer any units, after that!!
 rule genomics_db_import_chromosomes:
     input:
-        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),  # this was for testing...
+        #gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
+        #gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
     output:
         db=directory("results/genomics_db/chromosomes/{chromo}"),
     log:
@@ -71,6 +76,8 @@ rule genomics_db_import_chromosomes:
 rule genomics_db_import_scaffold_groups:
     input:
         gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        #gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
+        #gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
         scaff_groups = "scaffold_groups.tsv"
     output:
         db=directory("results/genomics_db/scaffold_groups/{scaff_group}"),
@@ -99,6 +106,55 @@ rule genomics_db_import_scaffold_groups:
 
 
 
+
+# we can use just a single rule to create a VCF with all individuals
+# for either the chromosomes or the scaffold groups. 
+# {type_of_subset} will be either "chromosomes" or "scaffold_groups"
+# {sg_or_chrom} will be either like "CM031199.1" (if type_of_subset is chromosomes), 
+# or {scaff_group001} if type_of_subset is scaffold_groups.  
+rule genomic_db2vcf:
+    input:
+        genome="resources/genome.fasta",
+        gendb="results/genomic_db/{type_of_subset}/{sg_or_chrom}"
+    output:
+        vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz"
+    log:
+        "results/logs/gatk/genotypegvcfs/scaffold_groups/{type_of_subset}/{sg_or_chrom}.log"
+    params:
+        java_opts="Xmx4g"
+        # I might need to consider a temp directory, in which case, put it in the config.yaml
+    resources:
+        mem_mb = 9400,
+        cpus = 2
+    threads: 2
+    conda:
+        "../envs/gatk4.yaml"
+    shell:
+        " gatk --java-options "-Xmx4g" GenotypeGVCFs "
+        " -R {input.genome} "
+        " -V gendb://{gendb} "
+        " -O {output.vcf} " 
+
+
+
+
+
+
+
+###################################################################################
+# This stuff down here is leftover from the snakemake workflow.  I had to
+# do things differently, obviously.  I didn't use the wrappers in some cases
+# (like GenotypeGVCFs), because that failed on the cluster in slurm mode,
+# but it worked fine when I deployed it all in shell.
+
+#    wrapper:
+#        "v0.85.1/bio/gatk/genomicsdbimport"
+
+
+
+
+
+
 rule call_variants:
     input:
         bam=get_sample_bams,
@@ -119,14 +175,6 @@ rule call_variants:
         extra=get_call_variants_params,
     wrapper:
         "0.59.0/bio/gatk/haplotypecaller"
-
-
-
-
-
-#    wrapper:
-#        "v0.85.1/bio/gatk/genomicsdbimport"
-
 
 
 
