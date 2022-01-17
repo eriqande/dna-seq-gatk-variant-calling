@@ -101,7 +101,7 @@ rule genomics_db_import_scaffold_groups:
         " gatk --java-options {params.java_opts} GenomicsDBImport {params.extra} "
         " {params.fileflags} "
         " --intervals {output.interval_list} "
-        " {params.db_action} {output.db} > {log} 2> {log}"
+        " {params.db_action} {output.db} > {log} 2> {log} "
 
 
 
@@ -115,14 +115,13 @@ rule genomics_db_import_scaffold_groups:
 rule genomic_db2vcf:
     input:
         genome="resources/genome.fasta",
-        gendb="results/genomic_db/{type_of_subset}/{sg_or_chrom}"
+        gendb="results/genomic_db/{type_of_subset}/{sg_or_chrom}",
     output:
-        vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz"
+        vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz",
     log:
-        "results/logs/gatk/genotypegvcfs/scaffold_groups/{type_of_subset}/{sg_or_chrom}.log"
+        "results/logs/gatk/genotypegvcfs/scaffold_groups/{type_of_subset}/{sg_or_chrom}.log",
     params:
-        java_opts="Xmx4g"
-        # I might need to consider a temp directory, in which case, put it in the config.yaml
+        java_opts="Xmx4g"  # I might need to consider a temp directory, too in which case, put it in the config.yaml
     resources:
         mem_mb = 9400,
         cpus = 2
@@ -130,10 +129,29 @@ rule genomic_db2vcf:
     conda:
         "../envs/gatk4.yaml"
     shell:
-        " gatk --java-options "-Xmx4g" GenotypeGVCFs "
+        " gatk --java-options {params.java_opts} GenotypeGVCFs "
         " -R {input.genome} "
         " -V gendb://{gendb} "
-        " -O {output.vcf} " 
+        " -O {output.vcf} > {log} 2> {log} " 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
