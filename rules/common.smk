@@ -36,6 +36,9 @@ validate(chromosomes, schema="../schemas/chromosomes.schema.yaml")
 scaffold_groups = pd.read_table("scaffold_groups.tsv").set_index("id", drop=False)
 validate(scaffold_groups, schema="../schemas/scaffold_groups.schema.yaml")
 
+# get a list of just the unique values of the scaffold_group
+unique_scaff_groups = list(scaffold_groups.id.unique())
+
 
 ##### Wildcard constraints #####
 wildcard_constraints:
@@ -45,7 +48,6 @@ wildcard_constraints:
 
 
 ##### Helper functions #####
-
 def get_contigs():
     with checkpoints.genome_faidx.get().output[0].open() as fai:
         return pd.read_table(fai, header=None, usecols=[0], squeeze=True, dtype=str)
