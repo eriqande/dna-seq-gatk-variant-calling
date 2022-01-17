@@ -65,8 +65,10 @@ rule genomics_db_import_chromosomes:
 rule genomics_db_import_scaffold_groups:
     input:
         gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        scaff_groups = "scaffold_groups.tsv"
     output:
         db=directory("results/genomics_db/scaffold_groups/{scaff_group}"),
+        interval_list="results/gdb_intervals/{scaff_group}.list"
     log:
         "results/logs/gatk/genomicsdbimport/scaffold_groups/{scaff_group}.log"
     params:
@@ -80,9 +82,11 @@ rule genomics_db_import_scaffold_groups:
     conda:
         "../envs/gatk4.yaml"
     shell:
+        " export TILEDB_DISABLE_FILE_LOCKING=1; "
+        " awk -v sg={scaff_group} 'NR>1 && $1 == sg {{print $2}}' {input.scaff_groups} > {output.interval_list}; "
         " gatk --java-options {params.java_opts} GenomicsDBImport {params.extra} "
         " {params.fileflags} "
-        " --intervals {params.intervals} "
+        " --intervals {output.interval_list} "
         " {params.db_action} {output.db} > {log} 2> {log}"
 
 
