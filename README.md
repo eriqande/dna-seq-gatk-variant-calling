@@ -414,8 +414,40 @@ gatk --java-options "-Xmx4g" GenotypeGVCFs \
    -V gendb://sandbox \
    -O CM031199.1.vcf.gz \
    --tmp-dir  /scratch/eanderson/tmp
-
 ```
+That failed with an error.  But I think it is a bug in GATK.  I am
+going to rerun with genomeDB's from the same, latest, version of GATK.
+
+```sh
+mkdir -p results/vcf_parts
+gatk --java-options "-Xmx4g" GenotypeGVCFs \
+   -R resources/genome.fasta \
+   -V gendb://results/genomics_db/chromosomes/CM031200.1 \
+   -O results/vcf_parts/CM031200.1.vcf.gz
+```
+
+* with CM031199 that fails after writing 29760738 with `java.lang.IllegalStateException: Genotype [T199970 ATATATAT/T GQ 49 DP 4 AD 0,2,0,0,0,2,0,0 {SB=0,0,2,2}] does not contain likelihoods necessary to calculate posteriors.`
+* with CM031200.1 that fails after writing 15955241 with: `java.lang.IllegalStateException: Genotype [T199968 AAA/TA GQ 57 DP 5 AD 0,0,0,3,2,0,0,0 {SB=0,0,3,2}] does not contain likelihoods necessary to calculate posteriors.`
+* with CM031201.1 it fails after writing 45940161 with: `java.lang.IllegalStateException: Genotype [T199967 ATTT/TT GQ 34 DP 5 AD 0,3,2,0,0,0,0,0 {SB=0,0,4,1}] does not contain likelihoods necessary to calculate posteriors.` And the two warnings immediately before it are
+```
+Chromosome CM031201.1 position 45940163 (TileDB column 217279462) has too many alleles in the combined VCF record : 7 : current limit : 6. Fields, such as  PL, with length equal to the number of genotypes will NOT be added for this location.
+
+Chromosome CM031201.1 position 45940171 (TileDB column 217279470) has too many alleles in the combined VCF record : 7 : current limit : 6. Fields, such as  PL, with length equal to the number of genotypes will NOT be added for this location.
+```
+So, that looks like two adjacent positions that both have too many alleles, and
+hence won't have genotype likelihoods.
+
+But, I think it might be that it fails when there is exactly one more than the
+max number of alleles.  All of them fail when there are 7 alleles, and the max allowed number of alleles is 6.  
+
+CM031199.1 actually doesn't have a problem at 6786063 where there are 8
+alleles.  It just charges right through that.  So, I will try an experiment:
+set the `--max-alternate-alleles` to 7 and see if it bombs on position 6786063.
+
+It did!  I filed an issue on GitHub.
+
+
+
 
 
 # Snakemake workflow: dna-seq-gatk-variant-calling
