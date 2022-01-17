@@ -119,7 +119,7 @@ rule genomic_db2vcf:
     output:
         vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz",
     log:
-        "results/logs/gatk/genotypegvcfs/scaffold_groups/{type_of_subset}/{sg_or_chrom}.log",
+        "results/logs/gatk/genotypegvcfs/{type_of_subset}/{sg_or_chrom}.log",
     params:
         java_opts="Xmx4g"  # I might need to consider a temp directory, too in which case, put it in the config.yaml
     resources:
