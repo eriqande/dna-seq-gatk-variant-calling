@@ -51,7 +51,8 @@ rule genomics_db_import_chromosomes:
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
     resources:
-        cpus = 2
+        mem_mb = 9400
+    threads: 2
     conda:
         "../envs/gatk4.yaml"
     shell:
@@ -62,6 +63,10 @@ rule genomics_db_import_chromosomes:
 
 
 
+# It seems like I have to set threads to 2 in order to get 2 CPUs for this
+# job.  resources: cpus = 2, does not work.  Same for above. I set reader
+# threads to 2.  It doesn't seem that there is any advantage to doing more
+# than that.
 rule genomics_db_import_scaffold_groups:
     input:
         gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
@@ -77,7 +82,8 @@ rule genomics_db_import_scaffold_groups:
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --merge-contigs-into-num-partitions 1 --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
     resources:
-        cpus = 2
+        mem_mb = 9400
+    threads: 2
     conda:
         "../envs/gatk4.yaml"
     shell:
