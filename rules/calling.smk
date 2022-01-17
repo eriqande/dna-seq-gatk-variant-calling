@@ -112,7 +112,7 @@ rule genomics_db_import_scaffold_groups:
 # {type_of_subset} will be either "chromosomes" or "scaffold_groups"
 # {sg_or_chrom} will be either like "CM031199.1" (if type_of_subset is chromosomes), 
 # or {scaff_group001} if type_of_subset is scaffold_groups.  
-rule genomic_db2vcf:
+rule genomics_db2vcf:
     input:
         genome="resources/genome.fasta",
         gendb=directory("results/genomics_db/{type_of_subset}/{sg_or_chrom}")
