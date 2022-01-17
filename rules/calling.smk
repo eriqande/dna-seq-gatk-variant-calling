@@ -73,7 +73,6 @@ rule genomics_db_import_scaffold_groups:
         "results/logs/gatk/genomicsdbimport/scaffold_groups/{scaff_group}.log"
     params:
         fileflags=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
-        intervals=get_scaff_group,
         db_action="--genomicsdb-workspace-path", # could change to the update flag
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --merge-contigs-into-num-partitions 1 --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
