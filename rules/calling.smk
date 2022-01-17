@@ -82,7 +82,7 @@ rule genomics_db_import_scaffold_groups:
         "../envs/gatk4.yaml"
     shell:
         " export TILEDB_DISABLE_FILE_LOCKING=1; "
-        " awk -v sg={scaff_group} 'NR>1 && $1 == sg {{print $2}}' {input.scaff_groups} > {output.interval_list}; "
+        " awk -v sg={wildcards.scaff_group} 'NR>1 && $1 == sg {{print $2}}' {input.scaff_groups} > {output.interval_list}; "
         " gatk --java-options {params.java_opts} GenomicsDBImport {params.extra} "
         " {params.fileflags} "
         " --intervals {output.interval_list} "
