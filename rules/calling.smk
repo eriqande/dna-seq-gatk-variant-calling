@@ -115,7 +115,7 @@ rule genomics_db_import_scaffold_groups:
 rule genomics_db2vcf:
     input:
         genome="resources/genome.fasta",
-        gendb=directory("results/genomics_db/{type_of_subset}/{sg_or_chrom}")
+        gendb="results/genomics_db/{type_of_subset}/{sg_or_chrom}"
     output:
         vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz",
     log:
@@ -131,7 +131,7 @@ rule genomics_db2vcf:
     shell:
         " gatk --java-options {params.java_opts} GenotypeGVCFs "
         " -R {input.genome} "
-        " -V gendb://{gendb} "
+        " -V gendb://{input.gendb} "
         " -O {output.vcf} > {log} 2> {log} " 
 
 
