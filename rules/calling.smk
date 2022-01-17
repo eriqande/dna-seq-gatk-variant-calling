@@ -51,7 +51,8 @@ rule genomics_db_import_chromosomes:
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
     resources:
-        mem_mb = 9400
+        mem_mb = 9400,
+        cpus = 2
     threads: 2
     conda:
         "../envs/gatk4.yaml"
@@ -82,7 +83,8 @@ rule genomics_db_import_scaffold_groups:
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --merge-contigs-into-num-partitions 1 --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
     resources:
-        mem_mb = 9400
+        mem_mb = 9400,
+        cpus = 2
     threads: 2
     conda:
         "../envs/gatk4.yaml"
