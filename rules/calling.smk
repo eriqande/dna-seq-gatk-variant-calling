@@ -115,7 +115,7 @@ rule genomics_db_import_scaffold_groups:
 rule genomic_db2vcf:
     input:
         genome="resources/genome.fasta",
-        gendb=directory("results/genomic_db/{type_of_subset}/{sg_or_chrom}")
+        gendb=directory("results/genomics_db/{type_of_subset}/{sg_or_chrom}")
     output:
         vcf="results/vcf_sections/{type_of_subset}/{sg_or_chrom}.vcf.gz",
     log:
