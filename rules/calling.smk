@@ -42,9 +42,9 @@ rule eca_call_variants:
 ### the sample identifer, no longer any units, after that!!
 rule genomics_db_import_chromosomes:
     input:
-        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),  # this was for testing...
-        #gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
-        #gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
+        #gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),  # this was for testing...
+        gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
+        gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
     output:
         db=directory("results/genomics_db/chromosomes/{chromo}"),
     log:
@@ -75,9 +75,9 @@ rule genomics_db_import_chromosomes:
 # than that.
 rule genomics_db_import_scaffold_groups:
     input:
-        gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
-        #gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
-        #gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
+        #gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        gvcfs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples())
+        gcvf_idxs=expand("results/gcvf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples())
         scaff_groups = "scaffold_groups.tsv"
     output:
         db=directory("results/genomics_db/scaffold_groups/{scaff_group}"),
