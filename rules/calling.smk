@@ -127,7 +127,7 @@ rule genomics_db2vcf:
         cpus = 2
     threads: 2
     conda:
-        "../envs/gatk4.yaml"
+        "../envs/gatk4.2.4.0.yaml"
     shell:
         " gatk --java-options {params.java_opts} GenotypeGVCFs "
         " -R {input.genome} "

@@ -446,6 +446,21 @@ set the `--max-alternate-alleles` to 7 and see if it bombs on position 6786063.
 
 It did!  I filed an issue on GitHub.
 
+## Moving forward
+
+It turns out that the bug occurred in GATK 4.2.4.1. As user seboyden pointed out:
+```
+To elaborate & clarify, in my use case:
+
+GenomicsDBImport 4.2.4.0 plus GenotypeGVCFs 4.2.4.0: works
+GenomicsDBImport 4.2.4.0 plus GenotypeGVCFs 4.2.4.1: fails
+GenomicsDBImport 4.2.4.1 plus GenotypeGVCFs 4.2.4.0: works
+GenomicsDBImport 4.2.4.1 plus GenotypeGVCFs 4.2.4.1: fails
+```
+
+So, I think that I should be fine just defining a new GATK environment
+for the GenotypeGVCFs steps.
+
 
 
 
