@@ -40,9 +40,10 @@ rule eca_call_variants:
 ### NOTE: WHEN WE HAVE SAMPLE SEQUENCED IN MULTIPLE UNITS WE WILL HAVE TO COMPLETELY
 ### OVERHAUL THIS TO MERGE THE BAMS before Marking Duplicates, then deal just with
 ### the sample identifer, no longer any units, after that!!
+## Note: the next two rules are unsatisfying because params.fileflags and input.gvcfs are
+## defined separately, though they are effecively the same thing.
 rule genomics_db_import_chromosomes:
     input:
-        #gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),  # this was for testing...
         gvcfs=expand("results/gvcf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples()),
         gcvf_idxs=expand("results/gvcf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples()),
     output:
@@ -50,7 +51,7 @@ rule genomics_db_import_chromosomes:
     log:
         "results/logs/gatk/genomicsdbimport/chromosomes/{chromo}.log"
     params:
-        fileflags=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        fileflags=expand("-V results/gvcf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples()),
         intervals="{chromo}",
         db_action="--genomicsdb-workspace-path", # could change to the update flag
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --tmp-dir /scratch/eanderson/tmp ",  # optional
@@ -75,7 +76,6 @@ rule genomics_db_import_chromosomes:
 # than that.
 rule genomics_db_import_scaffold_groups:
     input:
-        #gvcfs=expand("results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
         gvcfs=expand("results/gvcf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples()),
         gcvf_idxs=expand("results/gvcf/{u.sample}-{u.unit}.g.vcf.gz.tbi", u=units.itertuples()),
         scaff_groups = "scaffold_groups.tsv",
@@ -85,7 +85,7 @@ rule genomics_db_import_scaffold_groups:
     log:
         "results/logs/gatk/genomicsdbimport/scaffold_groups/{scaff_group}.log"
     params:
-        fileflags=expand("-V results/gvcf/s00{x}-1.g.vcf.gz", x = [1,2,3,4]),
+        fileflags=expand("-V results/gvcf/{u.sample}-{u.unit}.g.vcf.gz", u=units.itertuples()),
         db_action="--genomicsdb-workspace-path", # could change to the update flag
         extra=" --batch-size 50 --reader-threads 2 --genomicsdb-shared-posixfs-optimizations --merge-contigs-into-num-partitions 1 --tmp-dir /scratch/eanderson/tmp ",  # optional
         java_opts="-Xmx4g",  # optional
