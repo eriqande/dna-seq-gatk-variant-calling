@@ -121,7 +121,7 @@ rule genomics_db2vcf:
     log:
         "results/logs/gatk/genotypegvcfs/{type_of_subset}/{sg_or_chrom}.log",
     params:
-        java_opts="Xmx4g"  # I might need to consider a temp directory, too in which case, put it in the config.yaml
+        java_opts="-Xmx4g"  # I might need to consider a temp directory, too in which case, put it in the config.yaml
     resources:
         mem_mb = 9400,
         cpus = 2

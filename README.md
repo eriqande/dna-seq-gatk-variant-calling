@@ -461,8 +461,51 @@ GenomicsDBImport 4.2.4.1 plus GenotypeGVCFs 4.2.4.1: fails
 So, I think that I should be fine just defining a new GATK environment
 for the GenotypeGVCFs steps.
 
+I had to reinstall conda (I used mambaforge) to get that to work, but I am
+back now.
+
+### Tossing the 9 corrupted files for now
+
+This gets the files that we are still waiting for:
+```sh
+(snakemake) [node36: yukon-chinookomes-dna-seq-gatk-variant-calling]--% snakemake --use-conda  --profile ./slurm_profile --jobs 50 -np   results/qc/multiqc.html | awk '/wildcards: sample=/ {print $2}' | sed 's/sample=//g; s/,//g;' | sort | uniq > prepare/failures_1.txt
+(snakemake) [node36: yukon-chinookomes-dna-seq-gatk-variant-calling]--% cat prepare/failures_1.txt
+s221
+s227
+s243
+s244
+s250
+s265
+s305
+s343
+s360
+```
+So, I should be able to merely remove them from the `samples.tsv` and 
+`units.tsv`, and then run through everything.  I'll at least get a chance to
+see how long everything takes.
+```sh
+cp samples.tsv full_samples.tsv
+cp units.tsv full_units.tsv
+
+# get the non-faily samples
+(cat prepare/failures_1.txt; echo xxxxxxxxxxxxxxx; cat full_samples.tsv) | awk '/xxxxxxxxxx/ {go=1; next} go==0 {tosser[$1]++} go==1 {if(!($1 in tosser)) print}'  > samples.tsv
+
+# get the non-failing units
+(cat prepare/failures_1.txt; echo xxxxxxxxxxxxxxx; cat full_units.tsv) | awk '/xxxxxxxxxx/ {go=1; next} go==0 {tosser[$1]++} go==1 {if(!($1 in tosser)) print}' > units.tsv
+
+```
+Now we can look at the DAG like this:
+```sh
+snakemake --use-conda  --profile ./slurm_profile --jobs 50 -np  --dag | condense_dag | dot -Tsvg > toss-9-corrupted-fastqs.svg
+```
+Which looks like this:
+![DAG for 375 non-corrupted fastqs](images/toss-9-corrupted-fastqs.svg)
 
 
+So, let's give it a whirl:
+```sh
+(snakemake) [node36: yukon-chinookomes-dna-seq-gatk-variant-calling]--% snakemake --use-conda  --profile ./slurm_profile --jobs 60
+```
 
 
 # Snakemake workflow: dna-seq-gatk-variant-calling
