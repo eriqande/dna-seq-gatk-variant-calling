@@ -58,7 +58,8 @@ rule genomics_db_import_chromosomes:
         java_opts="-Xmx4g",  # optional
     resources:
         mem_mb = 9400,
-        cpus = 2
+        cpus = 2,
+        time = "36:00:00"
     threads: 2
     conda:
         "../envs/gatk4.yaml"
@@ -91,7 +92,8 @@ rule genomics_db_import_scaffold_groups:
         java_opts="-Xmx4g",  # optional
     resources:
         mem_mb = 9400,
-        cpus = 2
+        cpus = 2,
+        time = "36:00:00"
     threads: 2
     conda:
         "../envs/gatk4.yaml"
@@ -124,7 +126,8 @@ rule genomics_db2vcf:
         java_opts="-Xmx4g"  # I might need to consider a temp directory, too in which case, put it in the config.yaml
     resources:
         mem_mb = 9400,
-        cpus = 2
+        cpus = 2,
+        time = "3-00:00:00"
     threads: 2
     conda:
         "../envs/gatk4.2.4.0.yaml"

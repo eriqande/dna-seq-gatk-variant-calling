@@ -507,6 +507,15 @@ So, let's give it a whirl:
 (snakemake) [node36: yukon-chinookomes-dna-seq-gatk-variant-calling]--% snakemake --use-conda  --profile ./slurm_profile --jobs 60
 ```
 
+That cruised along happily, but I forgot that SEDNA now imposes an 8 hour default
+time limit on jobs.  So, about six of the genomics_db_imports failed, and almost
+all of the genotypegvcfs were headed to failure.  So I scancelled everything and 
+removed all the vcf_sections.  It looks like the latter were getting through
+about 25 megabases in 8 hours.  And the longest chromosomes are about
+100 megabases.  So, 24 hours should be sufficient.  I will give each of those
+jobs 3 days by default....And the genomicsDBimports should all get 36 hours,
+I believe, just to be on the safe side.  (It will all need more with more
+individuals).
 
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
