@@ -517,6 +517,11 @@ jobs 3 days by default....And the genomicsDBimports should all get 36 hours,
 I believe, just to be on the safe side.  (It will all need more with more
 individuals).
 
+Also, some of the genotype_gvcfs failed with a runtime memory of 4Gb.  So, I 
+really should up that to 8 Gb.  But, if I do that, then I probably ought to up
+things to 4 cores...Actually, I will do 2 CPUs but up the memory a bit.  So, I 
+will do 8Gb to the Java engine, but 11750 total.  That will let me get 8 jobs on each node.
+
 # Snakemake workflow: dna-seq-gatk-variant-calling
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.14.0-brightgreen.svg)](https://snakemake.bitbucket.io)
