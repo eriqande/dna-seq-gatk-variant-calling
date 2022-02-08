@@ -1,6 +1,6 @@
 __default__ :
   ntasks: 1
-  output: "slurm_logs/{rule}/{rule}.{wildcards}-%j.out"
-  error: "slurm_logs/{rule}/{rule}.{wildcards}-%j.err"
+  output: "results/slurm_logs/{rule}/{rule}.{wildcards}-%j.out"
+  error: "results/slurm_logs/{rule}/{rule}.{wildcards}-%j.err"
   job-name: "{rule}.{wildcards}"
  
